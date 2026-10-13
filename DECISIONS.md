@@ -26,7 +26,9 @@ Commit this answer before your first `uv run p2 score` on the own corpus.
 Git history then shows that the expectation came first, which is what lets it be wrong in a way that teaches you something.
 If you were surprised later, say so in prompt 4 or in EVAL.md; do not come back and rewrite this one.
 
-TODO: your answer to prompt 1.
+I chose NRC Information Notices, 2003–2010 for my corpus because it is about commercial nuclear power and medical problems that have been found in plants, and I was a nuclear mechanic in the Navy for 8 years, so I have read similar documents and understand what they are saying.
+
+I think the hybrid system will win because when searching this document, there will be a lot of repeat words and phrases that will not all be applicable to the search, but a bm25 retriever will find all occurences of the phrase, such as CRDM (control rod drive mechanism). The hybrid will then use a dense system to examine context and compare to bm25, which should find more accurate top results. I think the bm25 system will be the worst because there are no definitions or phrases that only apply to one topic, many of the same phrases in this document will be repeated in many different contexts.
 
 ---
 

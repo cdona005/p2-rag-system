@@ -38,6 +38,16 @@ query_prefix = ""
 # 60 is the value of the 13 lab; the fused systems are bm25 and dense.
 rrf_k = 60
 
+[rerank]
+# The system whose top candidates Claude reorders (hybrid, dense or bm25), and how many it reorders.
+first_stage = "hybrid"
+candidates = 20
+# Each candidate is cut to this many characters before Claude sees it (a 300-word chunk is about 2,000
+# characters on the shared corpus and up to about 2,500 on the NRC notices).
+passage_chars = 2500
+# What a document is shown as: "chunk" (its best chunk for the query) or "doc" (the start of the document).
+passage = "chunk"
+
 [answer]
 # How many chunks `p2 answer` sends to Claude with each question.
 top = 5
