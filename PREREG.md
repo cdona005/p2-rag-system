@@ -24,7 +24,7 @@ One sentence, about your own corpus, naming two of your systems and a direction.
 For example: "On my corpus of Kubernetes documentation, `rerank` has a higher MRR@10 than `hybrid`, because the queries are paraphrases that a first-stage fusion ranks too low."
 It should be something you could be wrong about.
 
-TODO: your hypothesis.
+On my corpus, rerank has a higher MRR@10 than hybrid because rerank reads passages for context and can more accurately rank whether specific documents are relevant to the search, like if searching for 'reactor pressure vessel' Claude would be able to find the documents only talking about the reactor pressure vessel and rank them higher than others.
 
 ---
 
@@ -36,8 +36,7 @@ A difference of 0.02 is usually not worth a reranker's cost in time and tokens.
 In this course, choose a Δ of at least 0.15 unless you argue for a larger one, because a smaller gap takes more queries than one project can judge.
 Call your number Δ (delta).
 
-TODO: your metric and your Δ, with the reason.
-
+MRR@10 will have a Δ of 0.15 because most of the searches in this corpus will be looking for a specific incident, which matters for the person searching this corpus because it will allow the user to find the correct document in the corpus without having to look through many unrelated results first. I chose 0.15 because that is what I am able to write queries for and test for this project.
 ---
 
 ## 3. How many queries you need
@@ -65,7 +64,10 @@ After you score the own corpus, the minimum detectable difference that `uv run p
 It should come out at or below your Δ.
 If it does not, your queries varied more than your stage 1 sd suggested, and you will say so in the outcome.
 
-TODO: your sd, which pair it came from, your n, and the number of queries you will write (at least n).
+
+On the shared practice queries, sd was 0.393 (MRR@10) between rerank and hybrid.
+n = ((1.96 + 0.84) x sd / Δ)^2 = 53.8, so I need at least 54 queries
+I will write 60 queries to test these systems.
 
 ---
 
@@ -82,7 +84,7 @@ This is the default rule, and you can tighten it, but do not loosen it after you
 | around zero, with both ends inside plus or minus Δ | well-powered null: a difference as large as Δ is ruled out |
 | around zero, with an end beyond plus or minus Δ | inconclusive: the gold set could not settle it, and I say so |
 
-TODO: confirm or tighten this rule, and name the two systems and the metric once more.
+I am keeping the rule as written because I will judge rerank minus hybrid on MRR@10 with delta 0.15, and this rule will show if rerank is a better system for this corpus.
 
 ---
 
