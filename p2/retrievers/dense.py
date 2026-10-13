@@ -1,25 +1,45 @@
-"""Your dense retriever (stage 1): embed every chunk once, embed the query, and rank chunks by cosine similarity.
+"""Dense retriever: embed every chunk once, embed the query, and rank chunks by cosine similarity.
 
-This file is yours to write, and the system is called "dense" because the file is dense.py.
-Until you write it, build() raises NotImplementedError, and p2 skips the system and lists it as to do.
+It is the 12 lab's dense_rankings over chunks instead of whole articles:
+- the embedder comes from [dense] model of p2.toml (default embed.BGE, bge-small-en-v1.5), loaded
+  with embed.load;
+- every chunk is encoded once with embed.doc_vectors, which keeps the vectors in .cache/vectors/
+  keyed by each text's hash, so only new or changed chunks are encoded on a later run;
+- the query is encoded the same way, with [dense] query_prefix of p2.toml put in front of it
+  (empty by default; some embedders are trained with an instruction before the query);
+- vectors have length 1, so one matrix product of the query vector with the chunk vectors gives
+  the cosine similarity of the query with every chunk.
 
-Where the idea is:
-- the 12 lab's retrieve.py in the course repo (class/12-embeddings-and-retrieval/lab/starter/retrieve.py):
-  load_bge, cached_doc_vectors and dense_rankings embed the articles and rank them with one matrix product;
-- p2/embed.py has those pieces ready for chunks: embed.load(embed.BGE) loads bge-small-en-v1.5,
-  embed.doc_vectors(model, texts, cfg.root) encodes and caches the chunk vectors, and
-  model.encode([query]) gives the query vector;
-- p2/retrievers/bm25.py shows the shape p2 expects: a class built on ChunkScorer whose
-  score_chunks(text) returns one score per chunk in self.chunks, and ChunkScorer then gives you both
-  search (documents) and search_chunks (chunks, which `p2 answer` needs).
-
-Pick the embedder you can defend in DECISIONS.md; bge-small and potion-retrieval-32M are the two the lab measured.
+ChunkScorer then ranks the chunks for search_chunks and lifts them to documents for search (a
+document scores its best chunk). Equal scores fall in id order, as for every system.
 """
+
+from __future__ import annotations
+
+from p2 import embed
+from p2.retrievers import ChunkScorer
 
 NEEDS_CLAUDE = False
 
 
+class Dense(ChunkScorer):
+    def __init__(self, corpus, cfg):
+        """Load the embedder named in [dense] and encode (or fetch from the cache) every chunk."""
+        super().__init__(corpus, cfg)
+        table = cfg.table("dense")
+        self.model = str(table.get("model", embed.BGE))  # recorded in traces
+        self.query_prefix = str(table.get("query_prefix", ""))
+        self.embedder = embed.load(self.model)
+        self.vectors = embed.doc_vectors(self.embedder, [c.text for c in self.chunks], cfg.root)
+
+    def score_chunks(self, text: str) -> list[float]:
+        """The cosine similarity of the query with every chunk, in the order of self.chunks."""
+        if not len(self.chunks):
+            return []
+        query = self.embedder.encode([self.query_prefix + text])  # shape (1, dim), length 1
+        return (query @ self.vectors.T).ravel().tolist()
+
+
 def build(corpus, cfg):
-    raise NotImplementedError(
-        "dense is not built yet: write p2/retrievers/dense.py (the idea is in the 12 lab's retrieve.py, dense_rankings, and p2/embed.py has the helpers)."
-    )
+    """The dense system for a corpus and settings."""
+    return Dense(corpus, cfg)

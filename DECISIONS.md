@@ -41,7 +41,15 @@ If you rejected the alternative without measuring it, say why that was a fair ca
 "There was no alternative" is not an answer.
 Find the fork.
 
-TODO: your answer to prompt 2.
+When working on the dense rag system, the prefix is "" by default, and I wanted to see if adding a prefix would help. I had Claude test adding "Represent this sentence for searching relevant passages: " When testing, there was not a detectable difference between having no query prefix vs adding one. Since adding a prefix did not change the results, I decided not to add the prefix. The table below shows the difference in runs.
+Overall, prefix minus none:
+
+
+| Metric | Difference | 95% interval |
+| -------- | -------- | -------- |
+| MRR@10 | −0.028 | −0.108 to +0.035 |
+| nDCG@10 | +0.013 | −0.020 to +0.042 |
+| recall@10 | +0.029 | 0.000 to +0.075 |
 
 ---
 
