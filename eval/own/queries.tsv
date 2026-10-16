@@ -2,3 +2,16 @@
 # origin is hand when you wrote the query yourself and claude when a model drafted it; at least 10 must be hand.
 # class is a word you choose, for example identifier, paraphrase or mixed as in the shared sets; scores are reported per class.
 # Lines that start with # are comments, so delete these lines or keep them, as you like.
+
+h00	mixed	Who manufactured the main steam line mechanical constant supports at Palo Verde	hand
+h01	identifier	Information Notice 2010-014	hand
+h02	identifier	NOTICE 2010-26	hand
+h03	paraphrase	What does the NRC say plants should consider for threat from airplane drills?	hand
+h04	mixed	Who has concerns that fuel thermal performance codes are not modeled properly	hand
+h05	mixed	What pump at Prairie Island Unit 1 was inoperable due to configuration control errors	hand
+h06	paraphrase	How did welders at Prairie Island fail to follow welding requirements?	hand
+h07	paraphrase	What actions should be taken based on the fires that the nrc found to have inadequate fire protection plans	hand
+h08	typo	UPDATED PROBILISTIC SEISMIC HAZARD	hand
+h09	typo	INSE users manual	hand
+h10	identifier	SPURIOUS RELAY ACTUATIONS	hand
+h11	paraphrase	What system was the motor operated valve in that failed to open at South Texas Unit 2	hand

@@ -1,6 +1,6 @@
 # License report
 
-Written by `uv run p2 license` for the `own` corpus.
+Written by `uv run p2 license --online` for the `own` corpus.
 The tool gathers evidence and flags problems.
 It cannot prove a license, and you remain responsible for every document you commit to this public repo.
 
@@ -10,7 +10,7 @@ It cannot prove a license, and you remain responsible for every document you com
 - ok: 220 (of which 0 had a flag that you reviewed)
 - flag, not yet reviewed: 0
 - fail: 0
-- Online lookups: not run (use `--online` on your own machine)
+- Online checked on 2026-10-16: 0 agreed or had nothing to compare, 0 disagreed, 0 could not be checked
 
 ## Documents
 
@@ -236,3 +236,9 @@ It cannot prove a license, and you remain responsible for every document you com
 | `ml102800027` | us-gov-public-domain | ok | - |
 | `ml102800456` | us-gov-public-domain | ok | - |
 | `ml121730336` | us-gov-public-domain | ok | - |
+
+## Online checks
+
+| docid | service | id | result |
+|---|---|---|---|
+| - | - | - | no document has a DOI, arXiv id or PubMed Central id in its source |
