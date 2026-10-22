@@ -132,7 +132,13 @@ Then read three in-corpus answers that `uv run p2 verify` passed.
 For each one, open the cited chunk and say whether the quote really supports the claim next to it.
 The check proves a quote is a real piece of the chunk and cannot prove that it supports the claim, so this reading is the part only you can do.
 
-TODO: write your answer choices and your three-answer audit.
+I used rerank to answer because it had the best results on my practice queries. 
+I did not change anything in prompts/answers.txt. 
+
+The first one I verified was "Within how many minutes must a mine operator call MSHA after an accident that kills a miner?", and the first document that rerank returned had the answer of 15 minutes.
+The second answer I checked is: "How high must berms or guardrails be on the banks of roadways at metal and nonmetal mines?", which is answered in the first few lines of the top document returned.
+The third answer I verified was: "At what depth does OSHA require a construction trench to have a protective system such as shoring or a trench box?", which is one of the questions the corpus cannot answer. The first result was relevant to the question.
+
 
 ---
 
@@ -283,7 +289,7 @@ Which differences are distinguishable and which are not, at your gold-set size?
 Do the `hand` queries and the `claude` queries tell the same story?
 Did your prediction in `DECISIONS.md` prompt 1 hold?
 
-The distinguisable differences are that rerank is the best system tested, then bm25, then hybrid, and dense is last. Rerank barely beat bm25 with only a +0.06 gain, so rerank is most likely better but cannot be proven based on the results. For recall@10, all of the systems were near 1.0, so nothing can be told from the recall scores.
+The distinguishable differences are that rerank is the best system tested, then bm25, then hybrid, and dense is last. Rerank barely beat bm25 with only a +0.06 gain, so rerank is most likely better but cannot be proven based on the results. For recall@10, all of the systems were near 1.0, so nothing can be told from the recall scores.
 The hand and claude queries were ranked the same way for both sets, so there is no clear difference. The claude queries did not copy more words then that hand queries, so neither unfairly favored keyword searches. 
 I predicted the hybrid would win and bm25 would be the worst in prompt 1, which was incorrect. BM25 beat hybrid and rerank was the best system tested. The reason for this is that my corpus has a lot of identifiers, so keyword search finds them reliably but dense misses them. Dense scored 0.244 on identifiers, which made the hybrid system much worse.
 
@@ -334,9 +340,9 @@ What did you change, what happened, and does the interval support the claim you 
 If the result is not distinguishable, say what size of effect your gold set could have seen.
 Read the queries at the top of each list in the second table, and say whether your change explains them.
 
-I changed the bm25 tokenizer from one that keeps codes whole to one that splits them into pieces. Almost nothing changed in the tests, only 2 queries had different results. c00 is an identifier search for ANSI/ANS-8.1, and the plain tokenizer split the search into ANSI, ANS, 8, 1. This found another notices and ranked it higher than the correct one. This only happened on this query because most of my queries are still unique even when split, so most stayed the same. 
+I changed the bm25 tokenizer from one that keeps codes whole to one that splits them into pieces. Almost nothing changed in the tests, only 2 queries had different results. c00 is an identifier search for ANSI/ANS-8.1, and the plain tokenizer split the search into ANSI, ANS, 8, 1. This found another notice and ranked it higher than the correct one. This only happened on this query because most of my queries are still unique even when split, so most stayed the same. 
 c28 changed as well, but its a plain english question and my change does not explain why this one changed.
-The interval does not support my claim. There was almost no change in the results, so if there is an effect, it is smaller than the mimimum my queries would be able to see (0.03 MRR@10).
+The interval does not support my claim. There was almost no change in the results, so if there is an effect, it is smaller than the minimum my queries would be able to see (0.03 MRR@10).
 
 ---
 
@@ -348,8 +354,14 @@ Then sort the failures by cause, for example a vocabulary mismatch, near-duplica
 
 | qid | what the best system returned | what was relevant | cause | what you would try |
 |---|---|---|---|---|
+| h08 | ml101970221 | ml102160735 | The gold set is too narrow, as both talk about updated probabilistic seismic hazards, which was the query. | Add this notice to the gold set and rerun the tests on all systems |
+| c39 | ml071220351 | ml080440014 | The gold set is too narrow, both of these notices talk about fires on diesel generator exhaust pipes. | Add this notice to the gold set and rerun the tests on all systems | 
+| c38 | ml081850581 | ml080370453 | The vocabulary used in the query was not exact wording from the document | The relevant document did not say 'public websites' directly, so this is a limitation of the bm25 system. | If the gold set had queries with exact wording, bm25 would be able to pick the relevant document more easily. | 
+| h09 | ml031830015 | ml092510055 | the only relevant words was 'User's', but the query said 'users', and 'manual' | This was a typo query, and bm25 does not have a way to check for similar words. | This is a limitation of bm25, so the only thing I could try would be to optimize the queries for the system |
+| h16 | ml101670005 | ml093340392 | bm25 matched the individual words in the date, instead of the whole date 'February 26, 2010. | This is a limitation of bm25, so the only thing I could try would be to optimize the queries for the system | 
 
-TODO: add one row for each failure you analyzed, and write two or three sentences on the pattern you see across them.
+My best system (rerank) only had two failures, and both were failures of the gold set. The returned notices were both correct, and I would add them to the gold set.
+To get to the required 5 failures, I used 3 from the second best system (bm25). These failures were caused by a typo which bm25 does not have a way to reason about finding similar words, and from the query not using exact wording from the document.
 
 ---
 
@@ -362,7 +374,13 @@ Did the winner change between the shared corpus and yours?
 Why, or why not: what is different about the two collections (document length, vocabulary, identifiers, near-duplicates, how the queries were written), and which of your explanations did you test and which are guesses?
 Say what 20 queries on one side and your gold-set size on the other cannot support.
 
-TODO: write the cross-corpus comparison.
+The winner did not change between the shared corpus and my corpus, but the rest did change. On the shared corpus, none of dense, hybrid, and bm25 was distinguishable. On my corpus, bm25 beat dense (+0.212) and hybrid (+0.104), and hybrid beat dense all with intervals above 0. rerank's lead over bm25 was also much smaller on my corpus (+0.06) than the shared corpus (+0.29). (measured)
+
+I think the main reason the results were much different on the two corpora is my gold set. The shared gold set paraphrases were written to not include words the document used, and bm25 got a 0.000 on recall. However, I wrote mine from the documents, which is probably the main reason bm25 did so well on my corpus (measured). 
+I also had claude measure the document lengths, and the shared corpus had a median length of 68 words while my corpus's median was 1650 words. I am not sure what effect this has, but it is a large difference. (guess)
+My queries and Claude's queries were measured to have almost the same overlap and no distinguishable difference in any system, so the hand and claude queries had no detectable difference. (measured)
+
+The 20 queries on the shared corpus can only detect differences of 0.167 to 0.42, and my 60 queries can distinguish gaps from 0.09 to 0.17. The shared corpus gold set size is why all of the systems are not distinguishable besides rerank, and my gold set is why I can barely distinguish between rerank vs bm25, which has a gap of +0.06 but the entire interval is above 0.
 
 ---
 
@@ -452,7 +470,26 @@ _No stretch runs yet (stretch option 5): `uv run p2 run --corpus own --queries e
 
 ### Your stretch
 
-Write the five things here.
+1. The option's name.
+   Rider
+2. What you did, and the files that hold it.
+   I did three more runs of reranker on the 20 practice queries, the files are runs/shared/rerank.practice.<r1, r2, r3>.trec.
+   There are also three more answer files: answers/shared/rerank.<r1, r2, r3>.json.
+   Traces: traces/shared-practice-rerank.<r1, r2, r3>.jsonl and traces/answers-rerank.<r1, r2, r3>.jsonl.
+3. The table `p2 score` wrote for it, by name: one of the three below, `own-ablation` and `own-ablation-queries` in section 5 for a second ablation, `own-origins` in section 4 for the hand and claude queries, or `repeats` in section 9 for the rider.
+   repeats, own-pairs
+4. What its interval lets you claim, and what it does not.
+   Claims
+   The three repeats have a spread of 0.000 and the gain over hybrid on the practice queries was +0.329 on every run, so the gain survives rerunning Claude.
+   On my corpus, rerank minus hybrid is +0.166 and the interval is above 0, so this is distinguishable.
+   Cannot be claimed
+   I cannot claim that Claude is deterministic, so these three runs do not mean that all runs will agree.
+   I cannot claim that the 8 out of 8 verified and 4 out of 4 declines are guaranteed. The intervals are [0.676, 1.000] and [0.510, 1.000].
+   I cannot claim that the true gap is at least 0.15, the lower end of the interval is 0.087.
+
+5. One thing you would do next, and what result would tell you it worked.
+   I would fix the labels for h08 and c39 and rescore all systems. It worked if the rerank minus hybrid interval stays above 0 and rerank's MRR@10 goes closer to 1.0.
+    
 
 ---
 
@@ -502,7 +539,13 @@ Each repeat answers the same questions, so the repeats are not independent trial
 Does the reranker's gain over its first stage survive the run-to-run variation?
 Write what the spread is, how it compares with the gain, and what the Wilson intervals on the verified share and the declined share say about 8 and 4 questions.
 
-598E: write the repeats result here.
+The spread was 0.000 on all three metrics, so they did survive the run-to-run variation. 
+The gain for rerank minus hybrid is +0.329 MRR@10, interval [+0.164, +0.504] and was the same on every repeat, meaning Claude did not threaten the results.
+Wilson Intervals:
+Verified 8 of 8, [0.676, 1.000]. With only 8 questions, the rate could be as low as about 68%.
+Declined 4 out of 4, [0.510, 1.000]. With only 4 questions, the rate could be as low as 51%.
+This is a very small sample, so the results do not prove that the system never fails.
+
 
 ### The pre-registered claim
 
@@ -510,4 +553,7 @@ The claim, the smallest effect, the gold-set size and the test are in `PREREG.md
 Here, say whether you followed the plan, what the interval turned out to be, and what that means.
 The outcome section of `PREREG.md` holds the short version.
 
-598E: write the claim and its outcome here.
+Yes, PREREG sections 1-4 were committed before my first judgment. I wrote 20 hand queries and claude wrote 40, so there were 60 queries total. I predicted the Δ would be 0.15 for rerank minus hybrid MRR@10. The interval was +0.166 [0.087, 0.251]. This interval is entirely above 0 in the direction I predicted, so the PREREG claim is supported.
+My gold set size was big enough to see Δ of 0.15 because p2 score printed MDD scores below 0.15.
+The difference is distinguishable from zero, and the estimate of 0.166 is above 0.15. However, the lower end of the interval was 0.087, so I cannot claim the gap is at least 0.15.
+Rerank had two misses, but they were failures of the gold set, not the system. The top result returned should have been a result in the gold set for both, so fixing the gold set could widen the gap.
