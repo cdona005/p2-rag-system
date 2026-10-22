@@ -95,7 +95,12 @@ Which row of the table in section 4 is it?
 Did your gold set reach the size section 3 asked for, and what was the minimum detectable difference that `uv run p2 score` printed?
 What would you do next, and what would you want a reader to take from this?
 
-TODO: your outcome.
+Rerank minus hybrid on MRR@10 was +0.166, [+0.087, +0.251]. This is from the section 4 table row own-pairs. 
+It is the first row of my section 4 table, the interval is entirely above 0 in the direction i predicted so the claim is supported.
+My gold set did reach the size section 3 asked for and the minimum detectable difference from p2 score is 0.118, below my Δ of 0.15.
+Next I would edit my gold set to include the documents for h08 and c39 labels, as these should have been in the gold set. I would know that it worked if rerank minus hybrid stays entirely above zero and rerank's MRR@10 goes closer to 1.0. 
+The reader should take away that on this corpus, rerank beats hybrid with an interval above 0. My preregistered prediction holds, but my decision prompt 1 prediction did not.
+
 
 ---
 
